@@ -2,9 +2,9 @@ spring:
   application:
     name: mantenimientos
   datasource:
-    url: jdbc:postgresql://localhost:5432/sistema_mantenimientos_bd
-    username: postgres
-    password: "ismael2026"
+    url: ${DB_URL}
+    username: ${DB_USERAPI}
+    password: ${DB_PASSWORDAPI}
     driver-class-name: org.postgresql.Driver
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
