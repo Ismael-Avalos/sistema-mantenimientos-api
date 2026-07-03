@@ -14,5 +14,5 @@ spring:
     baseline-on-migrate: true
   security:
     user:
-      name: ismael2026
+      name: admin
       password: isma12345
