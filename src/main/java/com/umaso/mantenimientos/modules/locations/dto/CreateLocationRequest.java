@@ -3,7 +3,7 @@ package com.umaso.mantenimientos.modules.locations.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record LocationRequest(
+public record CreateLocationRequest(
         @NotBlank
         @Size(max = 100)
         String nombre,

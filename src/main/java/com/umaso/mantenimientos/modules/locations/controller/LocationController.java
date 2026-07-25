@@ -1,13 +1,36 @@
 package com.umaso.mantenimientos.modules.locations.controller;
 
+import com.umaso.mantenimientos.modules.locations.dto.CreateLocationRequest;
+import com.umaso.mantenimientos.modules.locations.dto.LocationResponse;
 import com.umaso.mantenimientos.modules.locations.service.LocationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/maintenances/locations")
 @RequiredArgsConstructor
 public class LocationController {
+
     private final LocationService locationService;
+
+    @GetMapping
+    public ResponseEntity<List<LocationResponse>> findAll() {
+        return ResponseEntity.ok(locationService.findAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<LocationResponse> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(locationService.findById(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<LocationResponse> create(@RequestBody CreateLocationRequest request) {
+        LocationResponse response = locationService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 }

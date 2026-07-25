@@ -5,6 +5,7 @@ import com.umaso.mantenimientos.modules.assets.dto.response.AssetResponse;
 import com.umaso.mantenimientos.modules.assets.entity.Asset;
 import com.umaso.mantenimientos.modules.assets.entity.AssetStatus;
 import com.umaso.mantenimientos.modules.assets.repository.AssetRepository;
+import com.umaso.mantenimientos.modules.locations.dto.LocationResponse;
 import com.umaso.mantenimientos.modules.locations.entity.Location;
 import com.umaso.mantenimientos.modules.locations.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +72,17 @@ public class AssetService {
     }
 
     private AssetResponse mapToResponse(Asset asset) {
+        LocationResponse locationDto = null;
+
+        if (asset.getUbicacion() != null) {
+            Location loc = asset.getUbicacion();
+            locationDto = new LocationResponse(
+                    loc.getId(),
+                    loc.getNombre(),
+                    loc.getEdificio(),
+                    loc.getCreatedAt()
+            );
+        }
 
         return new AssetResponse(
                 asset.getId(),
@@ -83,6 +95,7 @@ public class AssetService {
                 asset.getSerialEquipo(),
                 asset.getEstado(),
                 asset.getFechaAdquisicion(),
+                locationDto,
                 asset.getCreatedAt()
         );
     }
