@@ -15,7 +15,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class LocationService {
 
-    private final LocationRepository locationRepository; // <-- El servicio llama al repositorio
+    private final LocationRepository locationRepository;
 
     public LocationResponse create(CreateLocationRequest request) {
         Location location = Location.builder()

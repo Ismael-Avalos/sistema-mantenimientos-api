@@ -1,0 +1,6 @@
+
+ALTER TABLE usuarios
+    ADD COLUMN activo BOOLEAN NOT NULL DEFAULT TRUE;
+
+ALTER TABLE usuarios
+    ADD COLUMN debe_cambiar_contrasena BOOLEAN NOT NULL DEFAULT TRUE;
