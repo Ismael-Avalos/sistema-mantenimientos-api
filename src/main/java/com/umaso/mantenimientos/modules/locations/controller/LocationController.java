@@ -33,4 +33,21 @@ public class LocationController {
         LocationResponse response = locationService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    // ACTUALIZAR / EDITAR (HTTP 200 OK)
+    @PutMapping("/{id}")
+    public ResponseEntity<LocationResponse> update(
+            @PathVariable UUID id,
+            @RequestBody CreateLocationRequest request
+    ) {
+        LocationResponse response = locationService.update(id, request);
+        return ResponseEntity.ok(response);
+    }
+
+    // ELIMINAR (HTTP 204 NO CONTENT)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        locationService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }
