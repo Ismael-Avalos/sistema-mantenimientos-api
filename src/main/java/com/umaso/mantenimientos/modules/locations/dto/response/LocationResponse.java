@@ -1,4 +1,4 @@
-package com.umaso.mantenimientos.modules.locations.dto;
+package com.umaso.mantenimientos.modules.locations.dto.response;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

@@ -1,7 +1,7 @@
 package com.umaso.mantenimientos.modules.assets.dto.response;
 
 import com.umaso.mantenimientos.modules.assets.entity.AssetStatus;
-import com.umaso.mantenimientos.modules.locations.dto.LocationResponse;
+import com.umaso.mantenimientos.modules.locations.dto.response.LocationResponse;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

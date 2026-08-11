@@ -9,6 +9,7 @@ public record UserResponse(
         String correo,
         String rol,
         Boolean activo,
+        Boolean debeCambiarContrasena, // <-- Agregado para visibilidad del Frontend
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {}

@@ -5,7 +5,7 @@ import com.umaso.mantenimientos.modules.assets.dto.response.AssetResponse;
 import com.umaso.mantenimientos.modules.assets.entity.Asset;
 import com.umaso.mantenimientos.modules.assets.entity.AssetStatus;
 import com.umaso.mantenimientos.modules.assets.repository.AssetRepository;
-import com.umaso.mantenimientos.modules.locations.dto.LocationResponse;
+import com.umaso.mantenimientos.modules.locations.dto.response.LocationResponse;
 import com.umaso.mantenimientos.modules.locations.entity.Location;
 import com.umaso.mantenimientos.modules.locations.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;

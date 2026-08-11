@@ -1,7 +1,7 @@
 package com.umaso.mantenimientos.modules.locations.service;
 
-import com.umaso.mantenimientos.modules.locations.dto.CreateLocationRequest;
-import com.umaso.mantenimientos.modules.locations.dto.LocationResponse;
+import com.umaso.mantenimientos.modules.locations.dto.request.CreateLocationRequest;
+import com.umaso.mantenimientos.modules.locations.dto.response.LocationResponse;
 import com.umaso.mantenimientos.modules.locations.entity.Location;
 import com.umaso.mantenimientos.modules.locations.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;

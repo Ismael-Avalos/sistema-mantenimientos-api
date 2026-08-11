@@ -9,6 +9,9 @@ import com.umaso.mantenimientos.modules.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +21,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public UserResponse create(CreateUserRequest request) {
 
         if (userRepository.existsByCorreo(request.correo())) {
@@ -38,14 +42,28 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
 
+        return mapToResponse(savedUser);
+    }
+
+    // Método auxiliar para no repetir código al mapear en otros endpoints del CRUD
+    private UserResponse mapToResponse(User user) {
         return new UserResponse(
-                savedUser.getId(),
-                savedUser.getNombre(),
-                savedUser.getCorreo(),
-                savedUser.getRol().getNombre(),
-                savedUser.getActivo(),
-                savedUser.getCreatedAt(),
-                savedUser.getUpdatedAt()
+                user.getId(),
+                user.getNombre(),
+                user.getCorreo(),
+                user.getRol().getNombre(), // Asegúrate de que la entidad Role tenga getNombre()
+                user.getActivo(),
+                user.getDebeCambiarContrasena(), // <-- Campo añadido
+                user.getCreatedAt(),
+                user.getUpdatedAt()
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponse> findAll() {
+        return userRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 }

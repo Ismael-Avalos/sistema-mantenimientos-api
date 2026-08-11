@@ -1,4 +1,4 @@
-package com.umaso.mantenimientos.modules.locations.dto;
+package com.umaso.mantenimientos.modules.locations.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
