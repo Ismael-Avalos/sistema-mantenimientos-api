@@ -1,5 +1,6 @@
 package com.umaso.mantenimientos.modules.assets.entity;
 
+import com.umaso.mantenimientos.modules.category.entity.Category;
 import com.umaso.mantenimientos.modules.locations.entity.Location;
 import jakarta.persistence.*;
 import lombok.*;
@@ -58,4 +59,8 @@ public class Asset {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @ManyToOne
+    @JoinColumn (name = "categoria_id", nullable = false)
+    private Category categoria;
 }

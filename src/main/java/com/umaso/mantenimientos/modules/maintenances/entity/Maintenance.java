@@ -22,7 +22,7 @@ public class Maintenance {
     @GeneratedValue
     private UUID id;
 
-    @Column(name = "numero_reporte", nullable = false, unique = true)
+    @Column(name = "numero_reporte", nullable = false, unique = true, insertable = false, updatable = false)
     private Long numeroReporte;
 
     @ManyToOne

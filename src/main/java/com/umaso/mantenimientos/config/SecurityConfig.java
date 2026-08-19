@@ -43,8 +43,13 @@ public class SecurityConfig {
                 "http://localhost:5173"
         ));
 
-        configuration.setAllowedMethods(List.of("*"));
+        // Declarar explícitamente los métodos HTTP permitidos
+        configuration.setAllowedMethods(List.of(
+                "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"
+        ));
+
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
                 new UrlBasedCorsConfigurationSource();

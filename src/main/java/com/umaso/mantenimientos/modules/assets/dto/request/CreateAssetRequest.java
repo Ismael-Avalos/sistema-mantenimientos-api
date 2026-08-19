@@ -1,5 +1,6 @@
 package com.umaso.mantenimientos.modules.assets.dto.request;
 
+import com.umaso.mantenimientos.modules.assets.entity.AssetStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -29,7 +30,11 @@ public record CreateAssetRequest(
         @Size(max = 100)
         String serialEquipo,
 
+        AssetStatus estado,
+
         UUID ubicacionId,
+
+        UUID categoriaId,
 
         LocalDate fechaAdquisicion
 

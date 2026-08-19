@@ -1,6 +1,7 @@
 package com.umaso.mantenimientos.modules.assets.dto.response;
 
 import com.umaso.mantenimientos.modules.assets.entity.AssetStatus;
+import com.umaso.mantenimientos.modules.category.dto.response.CategoryResponse;
 import com.umaso.mantenimientos.modules.locations.dto.response.LocationResponse;
 
 import java.time.LocalDate;
@@ -30,6 +31,8 @@ public record AssetResponse(
         LocalDate fechaAdquisicion,
 
         LocationResponse ubicacion,
+
+        CategoryResponse categoria,
 
         LocalDateTime createdAt
 
