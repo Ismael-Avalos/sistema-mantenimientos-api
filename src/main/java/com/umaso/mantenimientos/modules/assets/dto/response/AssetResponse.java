@@ -18,8 +18,6 @@ public record AssetResponse(
 
         String nombre,
 
-        String tipo,
-
         String marca,
 
         String modelo,

@@ -43,6 +43,10 @@ public class User {
     @Builder.Default
     private Boolean debeCambiarContrasena = true;
 
+    @Column(name = "security_version", nullable = false)
+    @Builder.Default
+    private long securityVersion = 0;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

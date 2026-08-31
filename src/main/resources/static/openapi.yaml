@@ -1,0 +1,117 @@
+openapi: 3.1.0
+info:
+  title: API de Gestión de Mantenimientos
+  version: 1.0.0
+  description: Autenticación stateless con access token JWT y refresh token rotatorio en cookie HttpOnly.
+servers:
+  - url: /
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    refreshCookie:
+      type: apiKey
+      in: cookie
+      name: refresh_token
+  schemas:
+    LoginRequest:
+      type: object
+      required: [correo, contrasena]
+      properties:
+        correo: { type: string, format: email }
+        contrasena: { type: string, format: password }
+    ChangePasswordRequest:
+      type: object
+      required: [contrasenaActual, nuevaContrasena]
+      properties:
+        contrasenaActual: { type: string, format: password }
+        nuevaContrasena: { type: string, format: password, minLength: 12, maxLength: 128 }
+    AuthenticatedUser:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        nombre: { type: string }
+        correo: { type: string, format: email }
+        rol: { type: string, enum: [ADMIN, TECNICO] }
+        activo: { type: boolean }
+        debeCambiarContrasena: { type: boolean }
+    AuthResponse:
+      type: object
+      properties:
+        accessToken: { type: string }
+        tokenType: { type: string, const: Bearer }
+        expiresIn: { type: integer, example: 900 }
+        usuario: { $ref: '#/components/schemas/AuthenticatedUser' }
+    Problem:
+      type: object
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }
+        code: { type: string }
+        timestamp: { type: string, format: date-time }
+paths:
+  /api/auth/login:
+    post:
+      summary: Inicia sesión y establece la cookie de refresh
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Sesión emitida
+          headers:
+            Set-Cookie: { description: Cookie HttpOnly de refresh, schema: { type: string } }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '400': { description: Solicitud inválida }
+        '401': { description: Credenciales inválidas o cuenta inactiva }
+        '429': { description: Demasiados intentos si el despliegue habilita rate limiting }
+  /api/auth/refresh:
+    post:
+      summary: Rota el refresh token y emite una sesión nueva
+      security: [{ refreshCookie: [] }]
+      responses:
+        '200': { description: Sesión renovada }
+        '401': { description: Refresh inválido, vencido, revocado o reutilizado }
+        '403': { description: Origin no permitido }
+  /api/auth/logout:
+    post:
+      summary: Revoca la familia de sesión y elimina la cookie
+      security: [{ bearerAuth: [], refreshCookie: [] }]
+      responses:
+        '204': { description: Sesión cerrada }
+        '401': { description: Access token ausente o inválido }
+        '403': { description: Origin no permitido }
+  /api/auth/me:
+    get:
+      summary: Devuelve el usuario vigente desde base de datos
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Usuario autenticado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AuthenticatedUser' }
+        '401': { description: Token ausente, inválido o vencido }
+  /api/auth/cambiar-contrasena:
+    post:
+      summary: Cambia la contraseña propia, revoca sesiones y exige un login nuevo
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChangePasswordRequest' }
+      responses:
+        '204': { description: Contraseña cambiada; todas las sesiones fueron invalidadas }
+        '400': { description: Contraseña actual o nueva inválida }
+        '401': { description: Token ausente o inválido }
+        '403': { description: Acceso denegado }

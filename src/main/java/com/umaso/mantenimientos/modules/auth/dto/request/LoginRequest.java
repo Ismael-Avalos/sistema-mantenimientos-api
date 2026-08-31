@@ -1,13 +1,6 @@
 package com.umaso.mantenimientos.modules.auth.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class LoginRequest {
-    private String correo;
-    private String contrasena;
-}
+public record LoginRequest(@NotBlank @Email String correo, @NotBlank String contrasena) {}

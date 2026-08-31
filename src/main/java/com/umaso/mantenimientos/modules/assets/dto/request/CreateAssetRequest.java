@@ -17,10 +17,6 @@ public record CreateAssetRequest(
         @Size(max = 100)
         String nombre,
 
-        @NotBlank
-        @Size(max = 50)
-        String tipo,
-
         @Size(max = 50)
         String marca,
 

@@ -47,7 +47,6 @@ public class AssetService {
                 .qrUuid(UUID.randomUUID())
                 .codigoInventario(request.codigoInventario())
                 .nombre(request.nombre())
-                .tipo(request.tipo())
                 .marca(request.marca())
                 .modelo(request.modelo())
                 .serialEquipo(request.serialEquipo())
@@ -85,7 +84,6 @@ public class AssetService {
 
         asset.setCodigoInventario(request.codigoInventario());
         asset.setNombre(request.nombre());
-        asset.setTipo(request.tipo());
         asset.setMarca(request.marca());
         asset.setModelo(request.modelo());
         asset.setSerialEquipo(request.serialEquipo());
@@ -161,7 +159,6 @@ public class AssetService {
                 asset.getQrUuid(),
                 asset.getCodigoInventario(),
                 asset.getNombre(),
-                asset.getTipo(),
                 asset.getMarca(),
                 asset.getModelo(),
                 asset.getSerialEquipo(),

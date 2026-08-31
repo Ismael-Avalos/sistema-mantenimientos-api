@@ -1,0 +1,2 @@
+ALTER TABLE equipos
+    DROP COLUMN IF EXISTS tipo;

@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Documentación interna generada por IA
+AUDITORIA_BACKEND.md
+CONTEXT_BACKEND.md

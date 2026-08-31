@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +25,8 @@ public class UserService {
     @Transactional
     public UserResponse create(CreateUserRequest request) {
 
-        if (userRepository.existsByCorreo(request.correo())) {
+        String email = request.correo().trim().toLowerCase(Locale.ROOT);
+        if (userRepository.findByCorreoIgnoreCase(email).isPresent()) {
             throw new IllegalArgumentException("Ya existe un usuario con ese correo.");
         }
 
@@ -33,7 +35,7 @@ public class UserService {
 
         User user = User.builder()
                 .nombre(request.nombre())
-                .correo(request.correo())
+                .correo(email)
                 .contrasena(passwordEncoder.encode(request.contrasena()))
                 .rol(role)
                 .activo(true)

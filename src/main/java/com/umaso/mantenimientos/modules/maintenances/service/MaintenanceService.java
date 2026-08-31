@@ -3,6 +3,7 @@ package com.umaso.mantenimientos.modules.maintenances.service;
 import com.umaso.mantenimientos.modules.assets.entity.Asset;
 import com.umaso.mantenimientos.modules.assets.repository.AssetRepository;
 import com.umaso.mantenimientos.modules.maintenances.dto.request.CreateMaintenanceRequest;
+import com.umaso.mantenimientos.modules.maintenances.dto.request.UpdateMaintenanceRequest;
 import com.umaso.mantenimientos.modules.maintenances.dto.response.MaintenanceResponse;
 import com.umaso.mantenimientos.modules.maintenances.entity.Maintenance;
 import com.umaso.mantenimientos.modules.maintenances.repository.MaintenanceRepository;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -40,18 +42,26 @@ public class MaintenanceService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public MaintenanceResponse obtenerPorId(UUID id) {
+        Maintenance mantenimiento = maintenanceRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "Mantenimiento no encontrado con ID: " + id
+                ));
+
+        return mapToResponse(mantenimiento);
+    }
+
     @Transactional
     public MaintenanceResponse crearMantenimiento(CreateMaintenanceRequest request) {
         Asset equipo = assetRepository.findById(request.equipoId())
-                .orElseThrow(() -> new RuntimeException("El equipo especificado no existe."));
+                .orElseThrow(() -> new NoSuchElementException("El equipo especificado no existe."));
 
-        User responsable = null;
-        if (request.responsableId() != null) {
-            responsable = userRepository.findById(request.responsableId())
-                    .orElse(null);
-        }
+        User responsable = buscarResponsable(request.responsableId());
 
         LocalDateTime ahora = LocalDateTime.now();
+        LocalDateTime fecha = request.fecha() != null ? request.fecha() : ahora;
+        validarFechas(fecha, request.fechaEntrega());
 
         Maintenance mantenimiento = Maintenance.builder()
                 .equipo(equipo)
@@ -67,20 +77,63 @@ public class MaintenanceService {
                 .observacionesTecnicas(request.observacionesTecnicas())
                 .recomendaciones(request.recomendaciones())
                 .costo(request.costo())
-                .fecha(request.fecha() != null ? request.fecha() : ahora)
+                .fecha(fecha)
                 .fechaEntrega(request.fechaEntrega())
                 .createdAt(ahora)
                 .updatedAt(ahora)
                 .build();
 
-        // 1. Guardamos y forzamos la ejecución del SQL INSERT en PostgreSQL
         Maintenance guardado = maintenanceRepository.saveAndFlush(mantenimiento);
 
-        // 2. Leemos la fila directamente de la BD para obtener el numero_reporte generado por la secuencia
         Maintenance registroCompleto = maintenanceRepository.findById(guardado.getId())
                 .orElse(guardado);
 
         return mapToResponse(registroCompleto);
+    }
+
+    @Transactional
+    public MaintenanceResponse actualizarMantenimiento(UUID id, UpdateMaintenanceRequest request) {
+        Maintenance mantenimiento = maintenanceRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Mantenimiento no encontrado con ID: " + id));
+
+        validarFechas(request.fecha(), request.fechaEntrega());
+        mantenimiento.setResponsable(buscarResponsable(request.responsableId()));
+        mantenimiento.setTipo(request.tipo());
+        mantenimiento.setSolicitanteNombre(request.solicitanteNombre());
+        mantenimiento.setSolicitanteCorreo(request.solicitanteCorreo());
+        mantenimiento.setSolicitanteTelefono(request.solicitanteTelefono());
+        mantenimiento.setUnidad(request.unidad());
+        mantenimiento.setDescripcionFalla(request.descripcionFalla());
+        mantenimiento.setActividadesRealizadas(request.actividadesRealizadas());
+        mantenimiento.setObservacionesTecnicas(request.observacionesTecnicas());
+        mantenimiento.setRecomendaciones(request.recomendaciones());
+        mantenimiento.setCosto(request.costo());
+        mantenimiento.setFecha(request.fecha());
+        mantenimiento.setFechaEntrega(request.fechaEntrega());
+        mantenimiento.setUpdatedAt(LocalDateTime.now());
+
+        return mapToResponse(maintenanceRepository.save(mantenimiento));
+    }
+
+    @Transactional
+    public void eliminarMantenimiento(UUID id) {
+        Maintenance mantenimiento = maintenanceRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Mantenimiento no encontrado con ID: " + id));
+        maintenanceRepository.delete(mantenimiento);
+    }
+
+    private User buscarResponsable(UUID responsableId) {
+        if (responsableId == null) return null;
+        return userRepository.findById(responsableId)
+                .orElseThrow(() -> new NoSuchElementException(
+                        "Responsable no encontrado con ID: " + responsableId));
+    }
+
+    private void validarFechas(LocalDateTime fecha, LocalDateTime fechaEntrega) {
+        if (fechaEntrega != null && fecha.isAfter(fechaEntrega)) {
+            throw new IllegalArgumentException(
+                    "La fecha de solicitud no puede ser posterior a la fecha de entrega.");
+        }
     }
 
     private MaintenanceResponse mapToResponse(Maintenance m) {

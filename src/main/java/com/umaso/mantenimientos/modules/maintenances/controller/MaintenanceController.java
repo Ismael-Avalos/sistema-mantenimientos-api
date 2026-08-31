@@ -1,6 +1,7 @@
 package com.umaso.mantenimientos.modules.maintenances.controller;
 
 import com.umaso.mantenimientos.modules.maintenances.dto.request.CreateMaintenanceRequest;
+import com.umaso.mantenimientos.modules.maintenances.dto.request.UpdateMaintenanceRequest;
 import com.umaso.mantenimientos.modules.maintenances.dto.response.MaintenanceResponse;
 import com.umaso.mantenimientos.modules.maintenances.service.MaintenanceService;
 import jakarta.validation.Valid;
@@ -31,10 +32,29 @@ public class MaintenanceController {
         return ResponseEntity.ok(maintenanceService.obtenerHistorialPorQrUuid(qrUuid));
     }
 
+    // Obtener detalle de un mantenimiento por su ID
+    @GetMapping("/{id}")
+    public ResponseEntity<MaintenanceResponse> obtenerPorId(@PathVariable UUID id) {
+        return ResponseEntity.ok(maintenanceService.obtenerPorId(id));
+    }
+
     // Registrar un nuevo mantenimiento
     @PostMapping
     public ResponseEntity<MaintenanceResponse> crear(@Valid @RequestBody CreateMaintenanceRequest request) {
         MaintenanceResponse respuesta = maintenanceService.crearMantenimiento(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(respuesta);
+    }
+
+    // Editar datos operativos sin permitir cambiar el equipo ni la sede
+    @PutMapping("/{id}")
+    public ResponseEntity<MaintenanceResponse> actualizar(@PathVariable UUID id,
+                                                           @Valid @RequestBody UpdateMaintenanceRequest request) {
+        return ResponseEntity.ok(maintenanceService.actualizarMantenimiento(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable UUID id) {
+        maintenanceService.eliminarMantenimiento(id);
+        return ResponseEntity.noContent().build();
     }
 }

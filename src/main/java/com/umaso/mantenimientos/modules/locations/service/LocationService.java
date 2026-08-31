@@ -20,9 +20,13 @@ public class LocationService {
 
     @Transactional
     public LocationResponse create(CreateLocationRequest request) {
+        String nombre = request.nombre().trim();
+        String edificio = normalizeOptional(request.edificio());
+        validateUniqueLocation(nombre, edificio, null);
+
         Location location = Location.builder()
-                .nombre(request.nombre())
-                .edificio(request.edificio())
+                .nombre(nombre)
+                .edificio(edificio)
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -53,9 +57,12 @@ public class LocationService {
         Location location = locationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ubicación no encontrada con ID: " + id));
 
-        // Modificamos las propiedades del objeto recuperado
-        location.setNombre(request.nombre());
-        location.setEdificio(request.edificio());
+        String nombre = request.nombre().trim();
+        String edificio = normalizeOptional(request.edificio());
+        validateUniqueLocation(nombre, edificio, id);
+
+        location.setNombre(nombre);
+        location.setEdificio(edificio);
 
         // Guardamos los cambios y devolvemos la respuesta mapeada
         Location updatedLocation = locationRepository.save(location);
@@ -78,5 +85,23 @@ public class LocationService {
                 location.getEdificio(),
                 location.getCreatedAt()
         );
+    }
+
+    private void validateUniqueLocation(String nombre, String edificio, UUID currentId) {
+        boolean alreadyExists = currentId == null
+                ? locationRepository.existsByNombreAndEdificio(nombre, edificio)
+                : locationRepository.existsByNombreAndEdificioAndIdNot(nombre, edificio, currentId);
+
+        if (alreadyExists) {
+            String detail = edificio == null ? nombre : nombre + " - " + edificio;
+            throw new IllegalStateException("Ya existe la ubicación: " + detail);
+        }
+    }
+
+    private String normalizeOptional(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return value.trim();
     }
 }

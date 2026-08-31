@@ -4,6 +4,7 @@ import com.umaso.mantenimientos.modules.locations.dto.request.CreateLocationRequ
 import com.umaso.mantenimientos.modules.locations.dto.response.LocationResponse;
 import com.umaso.mantenimientos.modules.locations.service.LocationService;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,7 @@ public class LocationController {
     }
 
     @PostMapping
-    public ResponseEntity<LocationResponse> create(@RequestBody CreateLocationRequest request) {
+    public ResponseEntity<LocationResponse> create(@Valid @RequestBody CreateLocationRequest request) {
         LocationResponse response = locationService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -38,7 +39,7 @@ public class LocationController {
     @PutMapping("/{id}")
     public ResponseEntity<LocationResponse> update(
             @PathVariable UUID id,
-            @RequestBody CreateLocationRequest request
+            @Valid @RequestBody CreateLocationRequest request
     ) {
         LocationResponse response = locationService.update(id, request);
         return ResponseEntity.ok(response);

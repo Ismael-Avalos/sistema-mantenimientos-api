@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
 public interface LocationRepository extends JpaRepository<Location, UUID> {
-    boolean existsByNombre(String nombre);
+    boolean existsByNombreAndEdificio(String nombre, String edificio);
+
+    boolean existsByNombreAndEdificioAndIdNot(String nombre, String edificio, UUID id);
 }

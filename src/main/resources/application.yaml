@@ -12,7 +12,20 @@ spring:
       ddl-auto: validate
   flyway:
     baseline-on-migrate: true
+
+app:
   security:
-    user:
-      name: admin
-      password: isma12345
+    issuer: ${APP_JWT_ISSUER:https://mantenimientos.local}
+    audience: ${APP_JWT_AUDIENCE:mantenimientos-clients}
+    access-token-ttl: ${APP_JWT_ACCESS_TTL:10m}
+    refresh-token-ttl: ${APP_REFRESH_TOKEN_TTL:3d}
+    rsa-public-key: ${APP_JWT_PUBLIC_KEY:}
+    rsa-private-key: ${APP_JWT_PRIVATE_KEY:}
+    allow-ephemeral-dev-keys: ${APP_JWT_ALLOW_EPHEMERAL_DEV_KEYS:true}
+    # Use the exact browser origin. Do not alternate localhost and 127.0.0.1.
+    cors-allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5173}
+    refresh-cookie:
+      name: ${APP_REFRESH_COOKIE_NAME:refresh_token}
+      secure: ${APP_REFRESH_COOKIE_SECURE:false}
+      same-site: ${APP_REFRESH_COOKIE_SAME_SITE:Lax}
+      path: ${APP_REFRESH_COOKIE_PATH:/api/auth}
