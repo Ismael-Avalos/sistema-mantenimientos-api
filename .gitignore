@@ -35,3 +35,6 @@ build/
 # Documentación interna generada por IA
 AUDITORIA_BACKEND.md
 CONTEXT_BACKEND.md
+
+# Credenciales locales de Docker
+.env.docker
