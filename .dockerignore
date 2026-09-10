@@ -1,5 +1,5 @@
-**
-!Dockerfile
-!target/
-target/**
-!target/mantenimientos-0.0.1-SNAPSHOT.jar
+.git
+.idea
+.vscode
+target
+.env*
