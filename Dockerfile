@@ -4,7 +4,7 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn -B clean package -DskipTests
 
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:21.0.10_7-jre
 WORKDIR /app
 COPY --from=build --chown=10001:10001 /app/target/mantenimientos-0.0.1-SNAPSHOT.jar app.jar
 USER 10001:10001
