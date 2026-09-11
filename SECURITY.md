@@ -40,7 +40,7 @@ Requiere Bearer. Responde los datos actuales obtenidos de PostgreSQL.
 
 ### `POST /api/auth/cambiar-contrasena`
 
-Requiere Bearer. Solicitud: `{"contrasenaActual":"...","nuevaContrasena":"..."}`. No acepta `usuarioId`. La nueva contraseña debe tener 12-128 caracteres e incluir mayúscula, minúscula, número y símbolo. Responde 204, revoca todas las sesiones e invalida inmediatamente todos los access tokens anteriores; el cliente debe iniciar sesión de nuevo.
+Requiere Bearer. Solicitud: `{"contrasenaActual":"...","nuevaContrasena":"..."}`. No acepta `usuarioId`. La nueva contraseña debe tener 8-128 caracteres e incluir al menos un número (por ejemplo, `Ismael2026`), tanto en el primer inicio de sesión como en cambios posteriores. La contraseña temporal al crear usuarios debe tener 8-128 caracteres, sin requisitos de composición (por ejemplo, `123456789`); no puede estar vacía ni contener únicamente espacios. Responde 204, revoca todas las sesiones e invalida inmediatamente todos los access tokens anteriores; el cliente debe iniciar sesión de nuevo.
 
 Si `debeCambiarContrasena=true`, el backend solamente permite `/me`, `/refresh`, `/logout` y `/cambiar-contrasena`.
 
