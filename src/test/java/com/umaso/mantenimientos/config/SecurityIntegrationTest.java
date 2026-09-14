@@ -1,6 +1,7 @@
 package com.umaso.mantenimientos.config;
 
 import com.umaso.mantenimientos.modules.assets.controller.AssetController;
+import com.umaso.mantenimientos.modules.health.controller.HealthController;
 import com.umaso.mantenimientos.modules.assets.service.AssetService;
 import com.umaso.mantenimientos.modules.auth.service.JwtTokenService;
 import com.umaso.mantenimientos.modules.maintenances.controller.MaintenanceController;
@@ -24,10 +25,11 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = {AssetController.class, MaintenanceController.class}, properties = {
+@WebMvcTest(controllers = {AssetController.class, MaintenanceController.class, HealthController.class}, properties = {
         "app.security.issuer=https://issuer.test", "app.security.audience=audience",
         "app.security.access-token-ttl=15m", "app.security.refresh-token-ttl=7d",
         "app.security.allow-ephemeral-dev-keys=true",
@@ -57,6 +59,40 @@ class SecurityIntegrationTest {
             return Optional.empty();
         });
         when(assetService.findAll()).thenReturn(List.of());
+    }
+
+    @Test
+    void anonymousHealthCheckReturnsOnlyOkWithoutDatabaseAccess() throws Exception {
+        mvc.perform(get("/api/health"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith("text/plain"))
+                .andExpect(content().string("OK"))
+                .andExpect(header().string("Cache-Control", "no-store"))
+                .andExpect(header().string("X-Content-Type-Options", "nosniff"))
+                .andExpect(header().doesNotExist("Set-Cookie"));
+        mvc.perform(head("/api/health"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(""));
+        verifyNoInteractions(userRepository, assetService, maintenanceService);
+    }
+
+    @Test
+    void healthPermissionDoesNotExposeOtherMethodsOrSubpaths() throws Exception {
+        for (var method : List.of(org.springframework.http.HttpMethod.POST,
+                org.springframework.http.HttpMethod.PUT, org.springframework.http.HttpMethod.PATCH,
+                org.springframework.http.HttpMethod.DELETE)) {
+            mvc.perform(request(method, "/api/health")).andExpect(status().isUnauthorized());
+        }
+        mvc.perform(get("/api/health/details")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/health/")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void healthRetainsCorsAndBearerValidation() throws Exception {
+        mvc.perform(get("/api/health").header("Origin", "https://denied.test"))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/api/health").header("Authorization", "Bearer invalid"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

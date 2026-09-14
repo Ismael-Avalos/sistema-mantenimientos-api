@@ -14,6 +14,10 @@ spring:
     baseline-on-migrate: true
 
 app:
+  database-keep-alive:
+    enabled: ${APP_DATABASE_KEEP_ALIVE_ENABLED:true}
+    interval: ${APP_DATABASE_KEEP_ALIVE_INTERVAL:6h}
+    initial-delay: ${APP_DATABASE_KEEP_ALIVE_INITIAL_DELAY:1m}
   security:
     issuer: ${APP_JWT_ISSUER:https://mantenimientos.local}
     audience: ${APP_JWT_AUDIENCE:mantenimientos-clients}

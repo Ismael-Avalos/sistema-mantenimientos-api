@@ -60,6 +60,8 @@ public class SecurityConfig {
                         // replace the original 4xx/5xx response with AUTH_TOKEN_MISSING.
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
+                        .requestMatchers(HttpMethod.HEAD, "/api/health").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/refresh").permitAll()
                         .requestMatchers("/api/auth/**").authenticated()
                         .requestMatchers("/maintenances/users/**", "/maintenances/roles/**").hasRole("ADMIN")
