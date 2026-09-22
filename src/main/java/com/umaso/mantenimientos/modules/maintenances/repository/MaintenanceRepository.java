@@ -9,6 +9,7 @@ import java.util.UUID;
 
 @Repository
 public interface MaintenanceRepository extends JpaRepository<Maintenance, UUID> {
+    boolean existsByResponsableId(UUID responsableId);
 
     // Buscar mantenimientos por el UUID del equipo, ordenados del más reciente al más antiguo
     List<Maintenance> findByEquipoIdOrderByFechaDesc(UUID equipoId);

@@ -44,7 +44,21 @@ Requiere Bearer. Solicitud: `{"contrasenaActual":"...","nuevaContrasena":"..."}`
 
 Si `debeCambiarContrasena=true`, el backend solamente permite `/me`, `/refresh`, `/logout` y `/cambiar-contrasena`.
 
-## Permisos
+## Administración de usuarios
+
+Las rutas `/maintenances/users` requieren ADMIN (también se normaliza ADMINISTRADOR).
+Además de crear y listar, se admite consultar por id (GET), editar (PUT), cambiar estado
+(`PATCH /{id}/estado`), eliminar (DELETE) y restablecer contraseña temporal
+(`POST /{id}/restablecer-contrasena`). El contrato completo y el prompt de integración están en
+[FRONTEND_USUARIOS_PROMPT.md](FRONTEND_USUARIOS_PROMPT.md).
+
+Restablecer obliga a cambiar la contraseña y revoca todas las sesiones. Editar correo, rol o
+estado también incrementa `security_version` y revoca refresh tokens. Una cuenta inactiva no se
+reactiva por restablecer su contraseña. No se permite eliminar, desactivar ni cambiar el rol
+de la propia cuenta. La eliminación física solo se permite sin mantenimientos asociados;
+en caso contrario devuelve 409 `USER_HAS_MAINTENANCES` y se debe usar la desactivación.
+
+## Matriz de permisos
 
 | Rutas | ADMIN | TECNICO |
 |---|---:|---:|

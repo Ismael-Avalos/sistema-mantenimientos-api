@@ -660,8 +660,8 @@ GET /maintenances/roles
 
 ### Estado Actual
 
-- **Spring Security** está configurado pero todos los endpoints son públicos (`permitAll()`)
-- **CORS** habilitado solo para `http://localhost:5173` (frontend local)
+- **Spring Security** protege los endpoints con JWT y autorización por roles.
+- **CORS** permite los orígenes configurados en `APP_CORS_ALLOWED_ORIGINS`.
 - **Contraseñas** cifradas con BCrypt
 - **CSRF** deshabilitado (API REST, no formularios)
 - **Form Login y HTTP Basic** deshabilitados
@@ -669,17 +669,16 @@ GET /maintenances/roles
 ### Autenticación
 
 - **Login**: Por correo y contraseña
-- **Tokens**: Generados como `MOCK-TOKEN-<UUID>` (sin firma ni expiración)
+- **Tokens**: JWT RS256 con expiración y refresh tokens rotatorios en cookie HttpOnly.
 - **Cambio de Contraseña**: Disponible con bandera `debeCambiarContrasena`
 
-### Seguridad Futura
+### Administración y contrato vigente
 
-Está planeado implementar:
-- Autenticación JWT con firma y expiración
-- Autorización basada en roles (`@PreAuthorize`)
-- Filtro de autenticación personalizado
-- Refresh tokens
-- Rate limiting
+El administrador puede crear, listar, consultar, editar, activar/desactivar y eliminar usuarios,
+así como restablecer una contraseña temporal que exige cambio en el siguiente acceso.
+Los usuarios con mantenimientos asociados deben desactivarse para conservar el historial.
+Consulta [SECURITY.md](SECURITY.md) para autenticación y
+[FRONTEND_USUARIOS_PROMPT.md](FRONTEND_USUARIOS_PROMPT.md) para el contrato de usuarios y el prompt listo para el frontend.
 
 ## Base de Datos
 

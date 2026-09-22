@@ -8,10 +8,12 @@ import java.util.UUID;
 
 public record CreateUserRequest(
         @NotBlank(message = "El nombre es obligatorio")
+        @Size(max = 100)
         String nombre,
 
         @NotBlank(message = "El correo es obligatorio")
         @Email(message = "El correo debe tener un formato válido")
+        @Size(max = 150)
         String correo,
 
         @NotBlank(message = "La contraseña temporal es obligatoria")

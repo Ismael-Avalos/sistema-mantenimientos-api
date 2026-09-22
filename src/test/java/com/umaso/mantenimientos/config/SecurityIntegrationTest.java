@@ -8,6 +8,8 @@ import com.umaso.mantenimientos.modules.maintenances.controller.MaintenanceContr
 import com.umaso.mantenimientos.modules.maintenances.service.MaintenanceService;
 import com.umaso.mantenimientos.modules.roles.entity.Role;
 import com.umaso.mantenimientos.modules.users.entity.User;
+import com.umaso.mantenimientos.modules.users.controller.UserController;
+import com.umaso.mantenimientos.modules.users.service.UserService;
 import com.umaso.mantenimientos.modules.users.repository.UserRepository;
 import jakarta.servlet.DispatcherType;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +31,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = {AssetController.class, MaintenanceController.class, HealthController.class}, properties = {
+@WebMvcTest(controllers = {AssetController.class, MaintenanceController.class, HealthController.class, UserController.class}, properties = {
         "app.security.issuer=https://issuer.test", "app.security.audience=audience",
         "app.security.access-token-ttl=15m", "app.security.refresh-token-ttl=7d",
         "app.security.allow-ephemeral-dev-keys=true",
@@ -45,6 +47,7 @@ class SecurityIntegrationTest {
     @MockitoBean AssetService assetService;
     @MockitoBean MaintenanceService maintenanceService;
     @MockitoBean UserRepository userRepository;
+    @MockitoBean UserService userService;
     private User admin;
     private User technician;
 
@@ -190,6 +193,49 @@ class SecurityIntegrationTest {
         mvc.perform(delete("/api/mantenimientos/{id}", maintenanceId)
                         .header("Authorization", bearer(admin)))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void userManagementIsRestrictedToAdministrators() throws Exception {
+        String path = "/maintenances/users/" + UUID.randomUUID();
+        var requests = List.of(get("/maintenances/users"), get(path),
+                post("/maintenances/users").content("{\"nombre\":\"Nuevo\",\"correo\":\"nuevo@example.com\",\"contrasena\":\"Temporal123\",\"rolId\":\"" + UUID.randomUUID() + "\"}"),
+                put(path).content("{\"nombre\":\"Editado\",\"correo\":\"editado@example.com\",\"rolId\":\"" + UUID.randomUUID() + "\",\"activo\":true}"),
+                patch(path + "/estado").content("{\"activo\":false}"),
+                post(path + "/restablecer-contrasena").content("{\"contrasenaTemporal\":\"Temporal123\"}"),
+                delete(path));
+        for (var request : requests) {
+            mvc.perform(request.contentType("application/json")).andExpect(status().isUnauthorized());
+            mvc.perform(request.header("Authorization", bearer(technician))).andExpect(status().isForbidden());
+        }
+        verifyNoInteractions(userService);
+        for (var request : requests) {
+            request.with(r -> { r.removeHeader("Authorization"); r.addHeader("Authorization", bearer(admin)); return r; });
+            mvc.perform(request).andExpect(status().is2xxSuccessful());
+        }
+    }
+
+    @Test
+    void invalidUserManagementRequestsAreRejected() throws Exception {
+        String path = "/maintenances/users/" + UUID.randomUUID();
+        for (String password : List.of("short", "        ", "a".repeat(129))) {
+            mvc.perform(post(path + "/restablecer-contrasena").header("Authorization", bearer(admin))
+                            .contentType("application/json").content("{\"contrasenaTemporal\":\"" + password + "\"}"))
+                    .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
+        }
+        mvc.perform(patch(path + "/estado").header("Authorization", bearer(admin))
+                        .contentType("application/json").content("{}"))
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(userService);
+    }
+
+    @Test
+    void changedSecurityVersionRejectsPreviouslyIssuedToken() throws Exception {
+        String token = bearer(admin);
+        admin.setSecurityVersion(1);
+        mvc.perform(get("/maintenances/users").header("Authorization", token))
+                .andExpect(status().isUnauthorized()).andExpect(jsonPath("$.code").value("AUTH_TOKEN_INVALID"));
+        verifyNoInteractions(userService);
     }
 
     private String bearer(User user) { return "Bearer " + jwtTokens.issue(user); }
